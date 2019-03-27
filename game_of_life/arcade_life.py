@@ -82,11 +82,16 @@ class LifeGame:
 			y = self.__y
 			x = self.__x
 
-		x = int(x)
-		y = int(y)
+		try:
+			x = int(x)
+			y = int(y)
+
+		except ValueError:
+			messagebox.showerror('are you sure about the input?', 'the rows/columns must be int')
 
 		if x < 1 or y < 1:
 			messagebox.showerror('really?', 'The Size Must Be Atleast 1X1')
+
 		elif x > self.__x_fixed or y > self.__y_fixed:
 			messagebox.showerror('really??', f'The Size Must Be less than {self.__x_fixed}X{self.__y_fixed}')
 
@@ -172,7 +177,7 @@ class LifeGame:
 
 	def close_window(self):
 
-		self.pause_play.invoke()
+		self.start = False
 		self.__root.destroy()
 
 	def play(self):
@@ -196,5 +201,4 @@ class LifeGame:
 			self.__buttons[x][y].configure(bg=self.color_off)
 
 
-g = LifeGame()
-g.play()
+LifeGame().play()
