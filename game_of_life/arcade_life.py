@@ -1,74 +1,118 @@
 import tkinter as tk
 from collections import defaultdict
 
+try:
+	from tkinter import messagebox
+except ImportError:
+	from tkinter import tkMessageBox as messagebox
 
+
+# clean the list when new uni : NO need?
 class LifeGame:
 	def __init__(self):
 
 		self.__root = tk.Tk()
 		self.__x = 27
-		self.__y = 27
+		self.__y = 57
+		self.__x_fixed = 27
+		self.__y_fixed = 57
 		self.color_off = 'SystemButtonFace'
 		self.color_on = 'blue'
 		self.__buttons = defaultdict(list)
-		self.pattern = list()
 		self.state = {0: self.color_off, 1: self.color_off, 3: self.color_on}
 		self.cell_range = [-1, 0, 1]
 		self.start = False
+		self.universe_init = False
+		self.__root.protocol('WM_DELETE_WINDOW', self.close_window)
+		self.frame_grids = tk.Frame(self.__root, height=self.__x, width=(2 * self.__y))
+		self.frame_grids.grid()
+		self.frame_done = tk.Frame(self.__root)
+		self.frame_done.grid()
+		self.stob_it = tk.Button(self.frame_done, text='Pause Simulation', bg='red', command=self.pause)
+		self.stob_it.grid(row=0, column=10)
+		self.config_universe = tk.Toplevel()
+		self.config_universe.lift()
 
 	def init_grid(self):
 
-		main_frame = tk.Frame(self.__root, height=(self.__x + 2))
-		frame_grids = tk.Frame(main_frame, height=self.__x, width=(2 * self.__y))
-		frame_done = tk.Frame(main_frame)
-		tk.Button(frame_done, text='Play Simulation', command=self.live).grid(row=self.__x + 2,
-																			  column=int(self.__y / 2))
+		tk.Button(self.frame_done, text='Play Simulation', bg='green', command=self.live).grid(row=0, column=5)
 
-		tk.Button(frame_done, text='Stop Simulation', command=self.stop).grid(row=self.__x + 2,
-																			  column=int(self.__y / 2) + 6)
-
-		frame_grids.grid()
-		frame_done.grid()
-		main_frame.grid()
+		tk.Button(self.frame_done, text='Adjust Grid', bg='yellow', command=lambda: self.make_universe(True)).grid(
+			row=0, column=15)
 
 		for i in range(self.__x):
 			for j in range(self.__y):
-				button = tk.Button(frame_grids, height=1, width=2,
+				button = tk.Button(self.frame_grids, height=1, width=2,
 								   command=lambda x=i, y=j: self.change_n_update(x, y))
 
 				button.grid(row=i, column=j)
 				self.__buttons[i].append(button)
 
-		for i in range(self.__x):
-			for j in range(self.__y):
-				self.__buttons[i][j].configure(bg='blue')
+	def make_universe(self, new_universe=False):
 
-		self.play_life()
+		if not self.universe_init:
+			self.__root.withdraw()
+			dialog = tk.Frame(self.config_universe)
 
-		for i in range(self.__x):
-			for j in range(self.__y):
-				print(self.__buttons[i][j].cget('bg'))
+			tk.Label(dialog, text='rows').grid(row=0, column=0)
+			row = tk.Entry(dialog)
+			row.grid(row=0, column=1)
 
-		frame_grids.mainloop()
+			tk.Label(dialog, text='columns').grid(row=1, column=0)
+			col = tk.Entry(dialog)
+			col.grid(row=1, column=1)
 
-	def stop(self):
-		self.start = False
+			tk.Button(dialog, text='submit', command=lambda: self.update_grid(row.get(), col.get())).grid(row=2,
+																										  column=0)
 
-	def live(self):
-		self.start = True
+			dialog.grid()
 
-		while self.start:
+		if new_universe:
+			self.config_universe.update()
+			self.config_universe.deiconify()
+
+	def update_grid(self, x, y):
+
+		x = int(x)
+		y = int(y)
+
+		if x < 1 or y < 1:
+			messagebox.showerror('really?', 'The Size Must Be Atleast 1X1')
+		elif x > self.__x_fixed or y > self.__y_fixed:
+			messagebox.showerror('really??', f'The Size Must Be less than {self.__x_fixed}X{self.__y_fixed}')
+
+		elif self.universe_init:
+
+			self.frame_done.destroy()
+
+			for i in range(self.__x):
+				for j in range(self.__y):
+					self.__buttons[i][j].destroy()
+
+				self.frame_grids.update()
+
+			self.__x = x
+			self.__y = y
+
+			self.stob_it.invoke()
+		else:
+
+			self.__x = x
+			self.__y = y
 			self.__root.update()
-			self.play_life()
+			self.__root.deiconify()
+			self.init_grid()
+			self.universe_init = True
 
-	def change_n_update(self, x, y):
+		self.config_universe.withdraw()
 
-		self.pattern.append([x, y])
-		self.__buttons[x][y].configure(bg=self.color_on)
+	def check_clear(self):
+		if self.frame_grids:
+			self.stob_it.invoke()
 
 	def play_life(self):
-
 		checked = {}
+		nums = 0
 		for i in range(self.__x):
 
 			for j in range(self.__y):
@@ -94,18 +138,45 @@ class LifeGame:
 						if self.__buttons[row][column]['bg'] == self.color_on:
 							neigh += 1
 
-				checked.update({str(i) + str(j): {'n': neigh, 'x': i, 'y': j}})
+				checked.update({nums: {'n': neigh, 'x': i, 'y': j}})
+				nums += 1
 
 		for _ in checked:
 
-			if checked[_]['n'] > 3:
-				self.__buttons[checked[_]['x']][checked[_]['y']].configure(bg=self.color_off)
+			if self.start is True:
+				if checked[_]['n'] > 3:
 
-			elif checked[_]['n'] != 2:
-				self.__buttons[checked[_]['x']][checked[_]['y']].configure(bg=self.state[checked[_]['n']])
+					self.__buttons[checked[_]['x']][checked[_]['y']].configure(bg=self.color_off)
 
-		print(checked)
+				elif checked[_]['n'] != 2:
+					self.__buttons[checked[_]['x']][checked[_]['y']].configure(bg=self.state[checked[_]['n']])
+
+	def close_window(self):
+
+		self.stob_it.invoke()
+		self.__root.destroy()
+
+	def play(self):
+		self.make_universe()
+		self.__root.mainloop()
+
+	def pause(self):
+		self.start = not self.start
+		self.frame_grids.update()
+
+	def live(self):
+		self.stob_it.invoke()
+
+		while self.start:
+			self.play_life()
+			self.frame_grids.update()
+
+	def change_n_update(self, x, y):
+		if self.__buttons[x][y]['bg'] == self.color_off:
+			self.__buttons[x][y].configure(bg=self.color_on)
+		else:
+			self.__buttons[x][y].configure(bg=self.color_off)
 
 
 g = LifeGame()
-g.init_grid()
+g.play()
