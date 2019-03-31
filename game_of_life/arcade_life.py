@@ -181,7 +181,7 @@ class LifeGame:
 
 	def play(self):
 		self._make_universe()
-		self._root.mainloop()
+		self.__root.mainloop()
 
 	def _live(self):
 
