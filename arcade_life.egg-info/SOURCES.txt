@@ -1,0 +1,6 @@
+README.md
+setup.py
+arcade_life.egg-info/PKG-INFO
+arcade_life.egg-info/SOURCES.txt
+arcade_life.egg-info/dependency_links.txt
+arcade_life.egg-info/top_level.txt

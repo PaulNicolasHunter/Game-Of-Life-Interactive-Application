@@ -6,6 +6,4 @@ setup(name='arcade_life',
 	  url='https://github.com/PaulNicolasHunter/Game-Of-Life-Interactive-Application',
 	  author='Vivek Choudhary (PaulNicoalsHunter)',
 	  author_email='choudhary.vivek98@gmail.com',
-	  license='MIT',
-
-	  )
+	  license='MIT')
