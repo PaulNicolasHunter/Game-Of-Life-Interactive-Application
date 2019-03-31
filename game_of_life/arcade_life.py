@@ -33,6 +33,7 @@ class LifeGame:
 		tk.Button(self.frame_props, text='Adjust Grid', bg='yellow', command=lambda: self._make_universe(True)).grid(
 			row=0, column=15)
 		self.config_universe = tk.Toplevel()
+		self.config_universe.protocol('WM_DELETE_WINDOW', self._close_uni)
 		self.config_universe.lift()
 
 	def _init_grid(self):
@@ -119,6 +120,9 @@ class LifeGame:
 
 		self.config_universe.withdraw()
 
+	def _close_uni(self):
+		self.config_universe.withdraw()
+    	
 	def _show_root(self):
 
 		self.__root.update()
