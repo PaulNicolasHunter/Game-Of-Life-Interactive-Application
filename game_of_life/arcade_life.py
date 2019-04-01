@@ -68,6 +68,9 @@ class LifeGame:
 			dialog.grid()
 
 		if new_universe:
+			if self.start:
+				self.pause_play.invoke()    			
+				
 			self._show_config()
 
 	def _update_grid(self, x, y):
@@ -96,8 +99,8 @@ class LifeGame:
 			messagebox.showerror('really??', f'The Size Must Be less than {self.__x_fixed}X{self.__y_fixed}')
 
 		elif self.universe_init:
-
-			self.pause_play.invoke()
+			if self.start:
+				self.pause_play.invoke()
 
 			for i in range(self.__x):
 				for j in range(self.__y):
