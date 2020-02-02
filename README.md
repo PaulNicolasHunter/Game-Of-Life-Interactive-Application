@@ -9,7 +9,7 @@ Python
 
 ### Instructions
 
-## select your owm dynamic universe
+## select your own dynamic universe
 ![](images/select.jpg)
 ## re-configure any time 
 
